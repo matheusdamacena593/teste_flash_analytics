@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Services;
+
+use App\Exceptions\Api\MensagensDeErro;
+use App\Http\Resources\PedidoResource;
+use App\Models\ItemPedido;
+use App\Models\Pedido;
+use App\Models\Produto;
+use App\Repositories\PedidoRepository;
+use App\Repositories\ProdutoRepository;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\DB;
+
+class PedidoService
+{
+    public function __construct(
+        protected ProdutoRepository $produtoRepository,
+        protected PedidoRepository $pedidoRepository,
+    ) {}
+    public function criarPedido(array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+            $valorTotal = 0;
+            $itensInseridos = [];
+
+            foreach ($dados['itens'] as $item) {
+                $produto = $this->produtoRepository->findById($item['produto_id']);
+                $quantidade = $item['quantidade'];
+
+                if ($quantidade > $produto['quantidade_estoque']) {
+                    return response()->json(MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 500);
+                }
+
+                $this->produtoRepository->alterarEstoque($produto, $quantidade);
+
+                $preco = $produto->preco;
+                $totalItem = $preco * $quantidade;
+
+                $valorTotal += $totalItem;
+
+                $itensInseridos[] = [
+                    'produto_id' => $produto->id,
+                    'nome_produto' => $produto->nome,
+                    'quantidade' => $quantidade,
+                    'preco_unitario' => $preco,
+                    'valor_total_item' => $totalItem,
+                ];
+            }
+
+            $pedido = Pedido::create([
+                'cliente' => $dados['cliente'],
+                'data_pedido' => $dados['data_pedido'],
+                'valor_total_pedido' => $valorTotal,
+            ]);
+
+            $pedido->itens()->createMany($itensInseridos);
+
+            DB::commit();
+
+            return response()->json([
+                'mensagem' => 'Pedido criado com sucesso',
+                'dados' => new PedidoResource($pedido->fresh('itens')),
+                'status' => 201
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new HttpResponseException(response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_CADASTRAR_PEDIDO'], 500));
+        }
+    }
+
+    public function obterPedido(string $id)
+    {
+        $pedido = $this->pedidoRepository->getPedidoAndItensById($id);
+
+        if (!$pedido) {
+            throw new HttpResponseException(response()->json(MensagensDeErro::RECURSO_NAO_ENCONTRADO['PEDIDO_NAO_ENCONTRADO'], 404));
+        }
+
+        return response()->json(new PedidoResource($pedido));
+    }
+
+    public function atualizarPedido(string $id, array $dados)
+    {
+        DB::beginTransaction();
+
+        try {
+            $pedido = $this->pedidoRepository->getPedidoById($id);
+            $pedido->itens()->delete();
+
+            $valorTotal = 0;
+            $itensInseridos = [];
+
+            foreach ($dados['itens'] as $item) {
+                $produto = Produto::findOrFail($item['produto_id']);
+                $preco = $produto->preco;
+                $quantidade = $item['quantidade'];
+                $totalItem = $preco * $quantidade;
+
+                $valorTotal += $totalItem;
+
+                $itensInseridos[] = [
+                    'produto_id' => $produto->id,
+                    'nome_produto' => $produto->nome,
+                    'quantidade' => $quantidade,
+                    'preco_unitario' => $preco,
+                    'valor_total_item' => $totalItem,
+                ];
+            }
+
+            $pedido->update([
+                'cliente' => $dados['cliente'],
+                'data_pedido' => $dados['data_pedido'],
+                'valor_total_pedido' => $valorTotal,
+            ]);
+
+            $pedido->itens()->createMany($itensInseridos);
+
+            DB::commit();
+
+            return response()->json([
+                'mensagem' => 'Pedido atualizado com sucesso',
+                'dados' => new PedidoResource($pedido->fresh('itens')),
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new HttpResponseException(response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_ALTERAR_PEDIDO'], 500));
+        }
+    }
+
+    public function excluirPedido(string $id)
+    {
+        $pedido = $this->pedidoRepository->getPedidoById($id);
+
+        if (!$pedido) {
+            throw new HttpResponseException(response()->json(MensagensDeErro::RECURSO_NAO_ENCONTRADO['PEDIDO_NAO_ENCONTRADO'], 404));
+        }
+
+        try {
+            $pedido->itens()->delete();
+            $pedido->delete();
+
+            return response()->json([
+                'mensagem' => 'Pedido deletado com sucesso',
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            throw new HttpResponseException(response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_EXCLUIR_PEDIDO'], 500));
+        }
+    }
+}

@@ -28,6 +28,19 @@ class MensagensDeErro
             'descricao' => 'Não foi possivel alterar o produto.',
             'status' => 500,
         ],
+        'ERRO_CADASTRAR_PEDIDO' => [
+            'mensagem' => 'Erro ao cadastrar pedido',
+            'descricao' => 'Não foi possivel cadastrar o pedido.',
+            'status' => 500,
+        ]
+    ];
+
+    const ERRO_NO_ESTOQUE = [
+        'FALTA_ESTOQUE' => [
+            'mensagem' => 'Erro ao retirar do estoque',
+            'descricao' => 'O estoque não tem a quantidade buscada.',
+            'status' => 500,
+        ]
     ];
 
     const ERRO_INTERNO = [
