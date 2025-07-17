@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Exceptions\Api;
+
+class MensagensDeErro
+{
+    const RECURSO_NAO_ENCONTRADO = [
+        'PRODUTO_NAO_ENCONTRADO' => [
+            'mensagem' => 'Produto não encontrado',
+            'descricao' => 'Nenhum produto foi encontrado com o id fornecido.',
+            'status' => 404,
+        ],
+        'PEDIDO_NAO_ENCONTRADO' => [
+            'mensagem' => 'Pedido não encontrado',
+            'descricao' => 'Nenhum produto foi encontrado com o id fornecido.',
+            'status' => 404,
+        ],
+    ];
+
+    const ERRO_CADASTRAR_OU_ALTERAR = [
+        'ERRO_CADASTRAR_PRODUTO' => [
+            'mensagem' => 'Erro ao cadastrar produto',
+            'descricao' => 'Não foi possivel cadastrar o produto.',
+            'status' => 500,
+        ],
+        'ERRO_ALTERAR_PRODUTO' => [
+            'mensagem' => 'Erro ao alterar produto',
+            'descricao' => 'Não foi possivel alterar o produto.',
+            'status' => 500,
+        ],
+    ];
+
+    const ERRO_INTERNO = [
+        'ERRO_DESCONHECIDO' => [
+            'mensagem' => 'Erro interno no servidor',
+            'descricao' => 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.',
+            'status' => 500,
+        ],
+    ];
+}
