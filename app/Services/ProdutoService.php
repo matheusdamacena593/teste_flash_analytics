@@ -79,7 +79,7 @@ class ProdutoService
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_ALTERAR_PRODUTO'], 500);
+            return response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_DELETAR_PRODUTO'], 500);
         }
     }
 }

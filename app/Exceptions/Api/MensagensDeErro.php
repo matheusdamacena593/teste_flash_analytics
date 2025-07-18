@@ -37,7 +37,17 @@ class MensagensDeErro
             'mensagem' => 'Erro ao alterar pedido',
             'descricao' => 'Não foi possivel alterar o pedido.',
             'status' => 500,
-        ]
+        ],
+        'ERRO_DELETAR_PEDIDO' => [
+            'mensagem' => 'Erro ao deletar pedido',
+            'descricao' => 'Não foi possivel deletar o pedido.',
+            'status' => 500,
+        ],
+        'ERRO_DELETAR_PRODUTO' => [
+            'mensagem' => 'Erro ao deletar produto',
+            'descricao' => 'Não foi possivel deletar o produto.',
+            'status' => 500,
+        ],
     ];
 
     const ERRO_NO_ESTOQUE = [

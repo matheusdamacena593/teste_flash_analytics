@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
-            $table->string('cliente'); // ou chave estrangeira, se clientes estiverem em outra tabela
+            $table->string('cliente');
             $table->decimal('valor_total_pedido', 10, 2);
             $table->timestamp('data_pedido')->useCurrent();
             $table->timestamps();

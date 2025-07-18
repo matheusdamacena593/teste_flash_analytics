@@ -154,7 +154,7 @@ class PedidoService
                 'status' => 200
             ]);
         } catch (\Exception $e) {
-            throw new HttpResponseException(response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_EXCLUIR_PEDIDO'], 500));
+            throw new HttpResponseException(response()->json(MensagensDeErro::ERRO_CADASTRAR_OU_ALTERAR['ERRO_DELETAR_PEDIDO'], 500));
         }
     }
 }
