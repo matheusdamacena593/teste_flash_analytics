@@ -12,9 +12,9 @@ class ProdutoRepository
         return Produto::find($id);
     }
 
-    public function alterarEstoque(Produto $produto, int $quantidadeRetirada)
+    public function alterarEstoque(Produto $produto, int $novaQuantidade)
     {
-        $produto->quantidade_estoque -= $quantidadeRetirada;
+        $produto->quantidade_estoque = $novaQuantidade;
         $produto->save();
 
         return $produto;

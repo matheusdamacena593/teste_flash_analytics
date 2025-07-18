@@ -31,7 +31,7 @@ class PedidoService
                 $quantidade = $item['quantidade'];
 
                 if ($quantidade > $produto['quantidade_estoque']) {
-                    return response()->json(MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 500);
+                    return response()->json(['error' => MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 'produto' => $produto->nome], 500);
                 }
 
                 $this->produtoRepository->alterarEstoque($produto, $quantidade);
@@ -61,7 +61,7 @@ class PedidoService
             DB::commit();
 
             return response()->json([
-                'mensagem' => 'Pedido criado com sucesso',
+                'mensagem' => 'Pedido cadastrado com sucesso',
                 'dados' => new PedidoResource($pedido->fresh('itens')),
                 'status' => 201
             ], 201);
@@ -88,6 +88,13 @@ class PedidoService
 
         try {
             $pedido = $this->pedidoRepository->getPedidoById($id);
+
+            foreach ($pedido->itens as $itemAntigo) {
+                $produto = $this->produtoRepository->getById($itemAntigo->produto_id);
+                $novaQuantidade = $produto->quantidade_estoque + $itemAntigo->quantidade;
+                $this->produtoRepository->alterarEstoque($produto, $novaQuantidade);
+            }
+
             $pedido->itens()->delete();
 
             $valorTotal = 0;
@@ -97,11 +104,12 @@ class PedidoService
                 $produto = $this->produtoRepository->getById($item['produto_id']);
                 $quantidade = $item['quantidade'];
 
-                if ($quantidade > $produto['quantidade_estoque']) {
-                    return response()->json(MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 500);
+                if ($quantidade > $produto->quantidade_estoque) {
+                    return response()->json(['error' => MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 'produto' => $produto->nome], 500);
                 }
 
-                $this->produtoRepository->alterarEstoque($produto, $quantidade);
+                $novaQuantidade = $produto->quantidade_estoque - $quantidade;
+                $this->produtoRepository->alterarEstoque($produto, $novaQuantidade);
 
                 $preco = $produto->preco;
                 $totalItem = $preco * $quantidade;
@@ -127,7 +135,7 @@ class PedidoService
             DB::commit();
 
             return response()->json([
-                'mensagem' => 'Pedido atualizado com sucesso',
+                'mensagem' => 'Pedido alterado com sucesso',
                 'dados' => new PedidoResource($pedido->fresh('itens')),
                 'status' => 200
             ]);

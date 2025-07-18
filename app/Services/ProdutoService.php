@@ -22,7 +22,7 @@ class ProdutoService
 
             DB::commit();
             return response()->json([
-                'mensagem' => 'Produto Cadastrado',
+                'mensagem' => 'Produto Cadastrado com sucesso',
                 'dados' => new ProdutoResource($produto),
                 'status' => 201
             ], 201);
@@ -52,7 +52,7 @@ class ProdutoService
 
             DB::commit();
             return response()->json([
-                'mensagem' => 'Produto Alterado',
+                'mensagem' => 'Produto Alterado com sucesso',
                 'status' => 200
             ], 200);
         } catch (\Exception $e) {
@@ -74,7 +74,7 @@ class ProdutoService
 
             DB::commit();
             return response()->json([
-                'mensagem' => 'Produto Deletado',
+                'mensagem' => 'Produto Deletado com sucesso',
                 'status' => 200
             ], 200);
         } catch (\Exception $e) {
