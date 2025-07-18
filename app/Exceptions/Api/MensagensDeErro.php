@@ -32,6 +32,11 @@ class MensagensDeErro
             'mensagem' => 'Erro ao cadastrar pedido',
             'descricao' => 'Não foi possivel cadastrar o pedido.',
             'status' => 500,
+        ],
+        'ERRO_ALTERAR_PEDIDO' => [
+            'mensagem' => 'Erro ao alterar pedido',
+            'descricao' => 'Não foi possivel alterar o pedido.',
+            'status' => 500,
         ]
     ];
 

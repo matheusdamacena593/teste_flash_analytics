@@ -5,11 +5,15 @@ namespace App\Services;
 use App\Exceptions\Api\MensagensDeErro;
 use App\Http\Resources\ProdutoResource;
 use App\Models\Produto;
+use App\Repositories\ProdutoRepository;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 
 class ProdutoService
 {
+    public function __construct(
+        protected ProdutoRepository $produtoRepository,
+    ) {}
     public function cadastrarProduto(array $dados)
     {
         DB::beginTransaction();
@@ -28,11 +32,22 @@ class ProdutoService
         }
     }
 
+    public function obterProduto(string $id)
+    {
+        $produto = $this->produtoRepository->getById($id);
+
+        if (!$produto) {
+            throw new HttpResponseException(response()->json(MensagensDeErro::RECURSO_NAO_ENCONTRADO['PRODUTO_NAO_ENCONTRADO'], 404));
+        }
+
+        return response()->json(new ProdutoResource($produto));
+    }
+
     public function alterarProduto(array $dados, string $id)
     {
         DB::beginTransaction();
         try {
-            $produto = Produto::findOrFail($id);
+            $produto =  $this->produtoRepository->getById($id);
             $produto->update($dados);
 
             DB::commit();
@@ -49,7 +64,7 @@ class ProdutoService
     public function deletarProduto(string $id)
     {
         DB::beginTransaction();
-        $produto = Produto::find($id);
+        $produto = $this->produtoRepository->getById($id);
 
         if (!$produto) {
             throw new HttpResponseException(response()->json(MensagensDeErro::RECURSO_NAO_ENCONTRADO['PRODUTO_NAO_ENCONTRADO'], 404));

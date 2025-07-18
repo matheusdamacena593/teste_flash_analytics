@@ -27,15 +27,9 @@ class ProdutoController extends Controller
         return $this->produtoService->cadastrarProduto($request->validated());
     }
 
-    public function show(string $id)
+    public function show(Request $request)
     {
-        $produto = Produto::find($id);
-
-        if (!$produto) {
-            throw new HttpResponseException(response()->json(MensagensDeErro::RECURSO_NAO_ENCONTRADO['PRODUTO_NAO_ENCONTRADO'], 404));
-        }
-
-        return response()->json(new ProdutoResource($produto));
+        return $this->produtoService->obterProduto($request->route('produto'));
     }
 
     public function update(ProdutoRequest $request)

@@ -22,21 +22,21 @@ class PedidoController extends Controller
 
     public function store(PedidoRequest $request)
     {
-        return $this->pedidoService->criarPedido($request->validated());
+        return $this->pedidoService->cadastrarPedido($request->validated());
     }
 
-    public function show(string $id)
+    public function show(Request $request)
     {
-        return $this->pedidoService->obterPedido($id);
+        return $this->pedidoService->obterPedido($request->route('pedido'));
     }
 
-    public function update(PedidoRequest $request, string $id)
+    public function update(PedidoRequest $request)
     {
-        return $this->pedidoService->atualizarPedido($id, $request->validated());
+        return $this->pedidoService->alterarPedido($request->validated(), $request->route('pedido'));
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        return $this->pedidoService->excluirPedido($id);
+        return $this->pedidoService->deletarPedido($request->route('pedido'));
     }
 }

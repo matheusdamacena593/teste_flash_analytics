@@ -18,7 +18,7 @@ class PedidoService
         protected ProdutoRepository $produtoRepository,
         protected PedidoRepository $pedidoRepository,
     ) {}
-    public function criarPedido(array $dados)
+    public function cadastrarPedido(array $dados)
     {
         DB::beginTransaction();
 
@@ -27,7 +27,7 @@ class PedidoService
             $itensInseridos = [];
 
             foreach ($dados['itens'] as $item) {
-                $produto = $this->produtoRepository->findById($item['produto_id']);
+                $produto = $this->produtoRepository->getById($item['produto_id']);
                 $quantidade = $item['quantidade'];
 
                 if ($quantidade > $produto['quantidade_estoque']) {
@@ -52,7 +52,7 @@ class PedidoService
 
             $pedido = Pedido::create([
                 'cliente' => $dados['cliente'],
-                'data_pedido' => $dados['data_pedido'],
+                'data_pedido' => now(),
                 'valor_total_pedido' => $valorTotal,
             ]);
 
@@ -82,7 +82,7 @@ class PedidoService
         return response()->json(new PedidoResource($pedido));
     }
 
-    public function atualizarPedido(string $id, array $dados)
+    public function alterarPedido(array $dados, string $id,)
     {
         DB::beginTransaction();
 
@@ -94,9 +94,16 @@ class PedidoService
             $itensInseridos = [];
 
             foreach ($dados['itens'] as $item) {
-                $produto = Produto::findOrFail($item['produto_id']);
-                $preco = $produto->preco;
+                $produto = $this->produtoRepository->getById($item['produto_id']);
                 $quantidade = $item['quantidade'];
+
+                if ($quantidade > $produto['quantidade_estoque']) {
+                    return response()->json(MensagensDeErro::ERRO_NO_ESTOQUE['FALTA_ESTOQUE'], 500);
+                }
+
+                $this->produtoRepository->alterarEstoque($produto, $quantidade);
+
+                $preco = $produto->preco;
                 $totalItem = $preco * $quantidade;
 
                 $valorTotal += $totalItem;
@@ -112,7 +119,6 @@ class PedidoService
 
             $pedido->update([
                 'cliente' => $dados['cliente'],
-                'data_pedido' => $dados['data_pedido'],
                 'valor_total_pedido' => $valorTotal,
             ]);
 
@@ -131,7 +137,7 @@ class PedidoService
         }
     }
 
-    public function excluirPedido(string $id)
+    public function deletarPedido(string $id)
     {
         $pedido = $this->pedidoRepository->getPedidoById($id);
 

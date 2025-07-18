@@ -37,7 +37,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
 # Define o diretório de trabalho
 WORKDIR /var/www/html
 
-COPY ["package.json", "package-lock.json", "/var/www/html/"]
+# COPY ["package.json", "package-lock.json", "/var/www/html/"]
 
 # Copia todos os arquivos do projeto Laravel para o container
 COPY . .
@@ -54,5 +54,4 @@ RUN php artisan key:generate
 RUN chown -R www-data:www-data storage bootstrap/cache \
  && chmod -R 775 storage bootstrap/cache
 
-# Comando padrão
 CMD ["php-fpm"]

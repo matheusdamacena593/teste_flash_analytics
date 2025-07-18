@@ -7,9 +7,9 @@ use App\Models\Produto;
 class ProdutoRepository
 {
 
-    public function findById(string $id)
+    public function getById(string $id)
     {
-        return Produto::findOrFail($id);
+        return Produto::find($id);
     }
 
     public function alterarEstoque(Produto $produto, int $quantidadeRetirada)
